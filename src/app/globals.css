@@ -86,7 +86,7 @@ nav.side .ctx{padding:6px 12px 10px}
 .grp-body>div{overflow:hidden;display:flex;flex-direction:column;gap:2px}
 .sep{height:1px;background:var(--line);margin:8px 12px}
 .count{background:var(--accent);color:var(--accent-ink);border-radius:999px;font-size:.72rem;padding:1px 7px;font-weight:600;line-height:1.4}
-main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:26px 48px;max-width:1140px;width:100%;min-width:0}
+main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:26px 48px;max-width:none;width:100%;min-width:0}
 .head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:22px}
 .head p{margin-top:4px;max-width:70ch}
 .crumb{font-size:.8rem;color:var(--muted);margin-bottom:6px}
