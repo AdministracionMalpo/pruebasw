@@ -5,11 +5,13 @@ import { PERMISO, usePermisos } from '@/contexts/UserContext';
 import { fmtCompleta } from '@/libs/tiempo';
 import { Cabecera, Cargando, Chip, ErrorCarga, SinPermiso, Vacio } from '@/components/ui/ui';
 import { Num } from '@/components/ui/Num';
+import { Paginacion, usePaginado } from '@/components/ui/Paginacion';
 
 export default function Equipo() {
   const { puede } = usePermisos();
   const ok = puede(PERMISO.EQUIPO);
   const { data: e, loading, error, refetch } = useApiEquipo();
+  const pg = usePaginado(e?.filas, 15);
   if (!ok) return <SinPermiso />;
   return <>
     <Cabecera seccion="Jefatura" titulo="Equipo hoy" sub={e ? fmtCompleta(e.hoy) : ''} />
@@ -21,10 +23,11 @@ export default function Equipo() {
         <div className="panel kpi"><div className="label">Por aprobar</div><div className="v"><Num v={e.pendientes} /></div>{puede(PERMISO.APROBAR) && <Link className="btn sm" href="/pages/jefatura/aprobaciones" style={{ marginTop: 6 }}>Revisar</Link>}</div>
       </div>
       {e.filas.length ? (
-        <div className="tw"><table><thead><tr><th>Trabajador</th><th>Cargo</th><th>Obra</th><th className="num">Entrada</th><th className="num">Salida</th><th>Estado</th></tr></thead><tbody className="stagger">
-          {e.filas.map(p => <tr key={p.id_externo}><td>{p.nombre}</td><td>{p.cargo}</td><td>{p.obra ?? '—'}</td><td className="num">{p.entrada ?? '—'}</td><td className="num">{p.salida ?? '—'}</td><td><Chip c={p.color}>{p.estado}</Chip></td></tr>)}
+        <div className="tw"><table><thead><tr><th>Trabajador</th><th>Cargo</th><th>Obra</th><th className="num">Entrada</th><th className="num">Salida</th><th>Estado</th></tr></thead><tbody className="stagger" key={pg.pagina}>
+          {pg.items.map(p => <tr key={p.id_externo}><td>{p.nombre}</td><td>{p.cargo}</td><td>{p.obra ?? '—'}</td><td className="num">{p.entrada ?? '—'}</td><td className="num">{p.salida ?? '—'}</td><td><Chip c={p.color}>{p.estado}</Chip></td></tr>)}
         </tbody></table></div>
-      ) : <Vacio icono="users">Aún no tienes personas a cargo. RR.HH. puede asignarlas en Administración → Usuarios.</Vacio>}
+      ) : null}
+      {e.filas.length ? <Paginacion p={pg} etiqueta="personas" opciones={[15, 30, 60]} /> : <Vacio icono="users">Aún no tienes personas a cargo. RR.HH. puede asignarlas en Administración → Usuarios.</Vacio>}
     </>}
   </>;
 }

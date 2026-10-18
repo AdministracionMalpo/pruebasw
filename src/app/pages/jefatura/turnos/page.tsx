@@ -6,11 +6,14 @@ import { fmtFecha, fmtFechaHora, hoy, sumarDias } from '@/libs/tiempo';
 import { SelectTurno } from '@/components/Acciones';
 import { Cabecera, Cargando, ErrorCarga, SinPermiso, Vacio } from '@/components/ui/ui';
 import { Icono } from '@/components/ui/Icono';
+import { Paginacion, usePaginado } from '@/components/ui/Paginacion';
 
 export default function Turnos() {
   const { puede } = usePermisos();
   const [semana, setSemana] = useState(hoy());
   const { data: t, loading, error, refetch } = useApiTurnos(semana);
+  const pg = usePaginado(t?.filas, 15);
+  const pgM = usePaginado(t?.mod_turnos, 10);
   if (!puede(PERMISO.TURNOS)) return <SinPermiso />;
   const dias = t?.dias || [];
   return <>
@@ -22,18 +25,20 @@ export default function Turnos() {
       </div>
     </Cabecera>
     {loading && !t ? <Cargando /> : error ? <ErrorCarga error={error} reintentar={() => refetch()} /> : t && <>
-      {t.filas.length ? <div className="tw"><table><thead><tr><th>Trabajador</th>{dias.map(d => <th key={d}>{fmtFecha(d)}</th>)}</tr></thead><tbody className="stagger" key={t.lunes}>
-        {t.filas.map(p => <tr key={p.id_externo}><td>{p.nombre}<div className="hint">{p.cargo}</div></td>{p.dias.map(c => (
+      {t.filas.length ? <div className="tw"><table><thead><tr><th>Trabajador</th>{dias.map(d => <th key={d}>{fmtFecha(d)}</th>)}</tr></thead><tbody className="stagger" key={t.lunes + pg.pagina}>
+        {pg.items.map(p => <tr key={p.id_externo}><td>{p.nombre}<div className="hint">{p.cargo}</div></td>{p.dias.map(c => (
           <td key={c.fecha}><SelectTurno key={c.fecha + c.valor} usuarioId={p.id_externo} fecha={c.fecha} valor={c.valor} opciones={t.tipos} etiqueta={`Turno de ${p.nombre} el ${fmtFecha(c.fecha)}`} /><div className="hint" style={{ fontSize: '.72rem' }}>{c.valor === 'HABITUAL' ? c.habitual : ''}</div></td>
         ))}</tr>)}
       </tbody></table></div> : <Vacio icono="users">Aún no tienes personas a cargo.</Vacio>}
+      {t.filas.length > 0 && <Paginacion p={pg} etiqueta="personas" opciones={[15, 30, 60]} />}
       <div className="row hint" style={{ marginTop: 10 }}>{t.tipos.map(x => <span key={x.codigo} className="shift" data-k={x.codigo} style={{ cursor: 'default' }}>{x.nombre}</span>)}</div>
       <h2 style={{ margin: '26px 0 10px' }}>Cambios registrados</h2>
       <div className="list stagger">
-        {t.mod_turnos.length ? t.mod_turnos.map(m => (
+        {t.mod_turnos.length ? pgM.items.map(m => (
           <div key={m.id} className="item"><span className="ic"><Icono n="swap" /></span><div><b>{m.nombre} · {/^\d{4}-/.test(m.aplica) ? fmtFecha(m.aplica) : m.aplica}</b><div className="meta">{m.antes} → <b>{m.despues}</b> · {m.motivo} · {m.autor ?? 'Sistema'}</div></div><div className="actions"><span className="hint mono">{fmtFechaHora(m.creado_en)}</span></div></div>
         )) : <Vacio icono="swap">Aún no hay cambios de turno.</Vacio>}
       </div>
+      <Paginacion p={pgM} etiqueta="cambios" />
     </>}
   </>;
 }

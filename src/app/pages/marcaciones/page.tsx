@@ -8,6 +8,7 @@ import { Cabecera, Cargando, Chip, ErrorCarga, NavMes } from '@/components/ui/ui
 import { Icono } from '@/components/ui/Icono';
 import { NuevaSolicitud } from '@/components/NuevaSolicitud';
 import { useToast } from '@/components/ui/Toasts';
+import { Paginacion, usePaginado } from '@/components/ui/Paginacion';
 import type { Dia } from '@/api/api_portal/tipos';
 
 export default function Marcaciones() {
@@ -16,6 +17,7 @@ export default function Marcaciones() {
   const { data: datos } = useApiDatosSolicitud();
   const toast = useToast();
   const dias = m ? m.dias.filter(d => d.fecha <= m.hasta).reverse() : [];
+  const pg = usePaginado(dias, 10, mes);
   const c = (d: Dia, t: keyof Dia['k']) => d.k[t]?.hora.slice(0, 5) ?? '—';
   return <>
     <Cabecera seccion="Control de asistencia" titulo="Mis marcaciones" sub={`${nombreMes(mes)}${m?.obra ? ' · ' + m.obra : ''}`}>
@@ -26,10 +28,10 @@ export default function Marcaciones() {
       </div>
     </Cabecera>
     {loading && !m ? <Cargando /> : error ? <ErrorCarga error={error} reintentar={() => refetch()} /> : (
-      <div className="tw"><table><thead><tr><th>Día</th><th className="num">Entrada</th><th className="num">Colación</th><th className="num">Salida</th><th className="num">Trabajadas</th><th>Origen</th><th>Estado</th></tr></thead>
-        <tbody className="stagger" key={mes}>
+      <><div className="tw"><table><thead><tr><th>Día</th><th className="num">Entrada</th><th className="num">Colación</th><th className="num">Salida</th><th className="num">Trabajadas</th><th>Origen</th><th>Estado</th></tr></thead>
+        <tbody className="stagger" key={mes + pg.pagina}>
           {dias.length === 0 && <tr><td colSpan={7} className="muted">Sin días en este período.</td></tr>}
-          {dias.map(d => {
+          {pg.items.map(d => {
             if (d.tipo === 'feriado') return <tr key={d.fecha} className="off"><td>{fmtFecha(d.fecha)}</td><td colSpan={6}>Feriado · {d.feriado}</td></tr>;
             if (d.tipo === 'descanso') return <tr key={d.fecha} className="off"><td>{fmtFecha(d.fecha)}</td><td colSpan={6}>Descanso</td></tr>;
             if (d.tipo === 'vacaciones') return <tr key={d.fecha} className="off"><td>{fmtFecha(d.fecha)}</td><td colSpan={6}>Vacaciones</td></tr>;
@@ -42,7 +44,7 @@ export default function Marcaciones() {
             const corr = MARCA_ORDEN.some(t => d.k[t]?.correccion);
             return <tr key={d.fecha}><td>{fmtFecha(d.fecha)}</td><td className="num">{c(d, 'ENTRADA')}</td><td className="num">{c(d, 'INICIO_COLACION')}–{c(d, 'FIN_COLACION')}</td><td className="num">{c(d, 'SALIDA')}</td><td className="num">{d.tipo === 'trabajado' ? fmtMin(d.trab) : '—'}</td><td>{d.k.ENTRADA ? ORIGEN_LABEL[d.k.ENTRADA.origen] : '—'}{corr && <span className="pill" style={{ marginLeft: 6 }}>corregida</span>}</td><td>{est}</td></tr>;
           })}
-        </tbody></table></div>
+        </tbody></table></div><Paginacion p={pg} etiqueta="días" opciones={[10, 16, 31]} /></>
     )}
   </>;
 }

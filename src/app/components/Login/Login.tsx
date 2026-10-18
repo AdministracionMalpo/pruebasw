@@ -75,8 +75,13 @@ export default function Login() {
           <img src="/logo-malpo.png" alt="Malpo Constructora e Inmobiliaria" width={320} height={46} />
           <h2>Portal del trabajador</h2>
           <p>Marca tu asistencia, revisa tus horas y haz tus solicitudes desde la obra o desde tu casa.</p>
+          <ul className="login-feats">
+            <li><span><Icono n="finger" s={18} /></span><div><b>Marcación con comprobante</b><small>Hora oficial del servidor y verificación pública.</small></div></li>
+            <li><span><Icono n="inbox" s={18} /></span><div><b>Solicitudes en línea</b><small>Vacaciones, permisos y horas extra con aprobación de tu jefatura.</small></div></li>
+            <li><span><Icono n="doc" s={18} /></span><div><b>Documentos y firma</b><small>Liquidaciones y contratos con firma electrónica simple.</small></div></li>
+          </ul>
         </div>
-        <p className="hint" style={{ color: 'rgba(255,255,255,.7)' }}>© 2026 Malpo SpA. Todos los derechos reservados.</p>
+        <p className="hint login-copy">© 2026 Malpo SpA. Todos los derechos reservados.</p>
         <div className="bars" aria-hidden="true"><i /><i /><i /></div>
       </section>
       <section className="login-form">
@@ -86,7 +91,7 @@ export default function Login() {
             <h2>Ingreso correcto</h2><p className="muted">Preparando tu portal…</p>
           </div>
         ) : (
-          <form onSubmit={enviar} className="login-card">
+          <form onSubmit={enviar} className="login-card login-panel">
             <div><div className="label">Constructora Malpo SpA</div><h1>Ingresar</h1><p className="muted" style={{ marginTop: 6 }}>Usa tu usuario y contraseña de Innova.</p></div>
             <div className="field"><label htmlFor="usuario">Usuario</label><input id="usuario" value={usuario} onChange={e => setUsuario(e.target.value)} autoComplete="username" placeholder="Tu usuario de Innova" disabled={cargando} required /></div>
             <div className="field"><label htmlFor="clave">Contraseña</label>
@@ -98,10 +103,11 @@ export default function Login() {
             {error && <p className="err" role="alert">{error}</p>}
             <button className={'btn primary big' + (cargando ? ' loading' : '')} disabled={cargando}>{tokenUrl && cargando ? 'Verificando sesión…' : 'Ingresar'}</button>
             <p className="hint">¿Olvidaste tu contraseña? Se cambia en Innova.</p>
-            <div className="row" style={{ justifyContent: 'space-between', fontSize: '.88rem' }}>
-              <a className="link" href="/verificar">Verificar un comprobante de marca</a>
-              <a className="link" href={SESSION_CONFIG.LOGOUT_URL}>Volver a Innova</a>
+            <div className="login-links">
+              <a className="link" href="/verificar"><Icono n="shield" s={15} /> Verificar un comprobante</a>
+              <a className="link" href={SESSION_CONFIG.LOGOUT_URL}><Icono n="home" s={15} /> Volver a Innova</a>
             </div>
+            <p className="hint login-copy-movil">© 2026 Malpo SpA. Todos los derechos reservados.</p>
           </form>
         )}
       </section>

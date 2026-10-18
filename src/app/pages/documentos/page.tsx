@@ -5,16 +5,18 @@ import { FirmarDocumento } from '@/components/Acciones';
 import { Cabecera, Cargando, Chip, ErrorCarga, Vacio } from '@/components/ui/ui';
 import { Icono } from '@/components/ui/Icono';
 import { useToast } from '@/components/ui/Toasts';
+import { Paginacion, usePaginado } from '@/components/ui/Paginacion';
 
 export default function Documentos() {
   const { data, loading, error, refetch } = useApiDocumentos();
   const toast = useToast();
   const docs = (data || []).slice().sort((a, b) => Number(!!a.firmado_en || a.requiere_firma !== '1') - Number(!!b.firmado_en || b.requiere_firma !== '1'));
+  const pg = usePaginado(docs, 10, data);
   return <>
     <Cabecera titulo="Gestión documental" sub="Contratos, liquidaciones y actas que Recursos Humanos publicó para ti." />
     {loading && !data ? <Cargando /> : error ? <ErrorCarga error={error} reintentar={() => refetch()} /> : (
-      <div className="list stagger">
-        {docs.length ? docs.map(d => {
+      <><div className="list stagger" key={pg.pagina}>
+        {docs.length ? pg.items.map(d => {
           const pendiente = d.requiere_firma === '1' && !d.firmado_en;
           return <div key={d.id} className="item">
             <span className={'ic' + (pendiente ? ' warn' : '')}><Icono n="doc" /></span>
@@ -26,7 +28,7 @@ export default function Documentos() {
             </div>
           </div>;
         }) : <Vacio icono="doc">Aún no tienes documentos publicados.</Vacio>}
-      </div>
+      </div><Paginacion p={pg} etiqueta="documentos" /></>
     )}
   </>;
 }

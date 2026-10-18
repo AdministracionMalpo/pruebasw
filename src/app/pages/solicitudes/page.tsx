@@ -9,6 +9,7 @@ import { Cabecera, Cargando, Chip, ErrorCarga, Vacio } from '@/components/ui/ui'
 import { Icono } from '@/components/ui/Icono';
 import { NuevaSolicitud } from '@/components/NuevaSolicitud';
 import { useToast } from '@/components/ui/Toasts';
+import { Paginacion, usePaginado } from '@/components/ui/Paginacion';
 
 function Contenido() {
   const params = useSearchParams();
@@ -16,13 +17,14 @@ function Contenido() {
   const { data: lista, loading, error, refetch } = useApiSolicitudes();
   const { data: datos } = useApiDatosSolicitud();
   const toast = useToast();
+  const pg = usePaginado(lista, 10);
   return <>
     <Cabecera titulo="Solicitudes" sub="Vacaciones, permisos, cambios de turno, horas extra y justificaciones.">
       {datos && <NuevaSolicitud tipo={tipo && SOLICITUD_LABEL[tipo] ? tipo : 'VACACIONES'} datos={datos}><Icono n="plus" s={16} /> Nueva solicitud</NuevaSolicitud>}
     </Cabecera>
     {loading && !lista ? <Cargando /> : error ? <ErrorCarga error={error} reintentar={() => refetch()} /> : (
-      <div className="list stagger">
-        {lista!.length ? lista!.map(s => (
+      <><div className="list stagger" key={pg.pagina}>
+        {lista!.length ? pg.items.map(s => (
           <div key={s.id} className="item">
             <span className={'ic ' + ESTADO_CHIP[s.estado]}><Icono n={SOLICITUD_ICONO[s.tipo]} /></span>
             <div><b>{SOLICITUD_LABEL[s.tipo]}</b><div className="meta">{s.detalle} · enviada {fmtFechaHora(s.creada_en)}</div>{s.motivo && <div className="meta">“{s.motivo}”</div>}
@@ -31,7 +33,7 @@ function Contenido() {
             {s.comentario && <div className="note"><b>{s.revisor ?? 'Jefatura'}:</b> {s.comentario}</div>}
           </div>
         )) : <Vacio icono="inbox">Aún no tienes solicitudes.</Vacio>}
-      </div>
+      </div><Paginacion p={pg} etiqueta="solicitudes" /></>
     )}
   </>;
 }

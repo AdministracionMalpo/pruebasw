@@ -491,3 +491,41 @@ a.btn,a.tile,a.nv,a.day{text-decoration:none}
 .perm-dot{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--sunken);color:var(--muted);transition:background .25s,color .25s}
 .perm-dot.on{background:var(--ok-soft);color:var(--ok)}
 @media (max-width:860px){.perm-persona{grid-template-columns:minmax(0,1fr)}.perm-lista{position:static;max-height:260px}.perm-row{grid-template-columns:auto minmax(0,1fr)}.perm-row .segl{grid-column:1/-1;justify-self:start}}
+
+/* ::::: Ingreso (rediseño responsive) ::::: */
+.login-brand .login-feats{list-style:none;margin:34px 0 0;padding:0;display:grid;gap:16px;max-width:420px}
+.login-feats li{display:flex;gap:12px;align-items:flex-start;animation:rise .6s var(--spring) both}
+.login-feats li:nth-child(1){animation-delay:.5s}.login-feats li:nth-child(2){animation-delay:.6s}.login-feats li:nth-child(3){animation-delay:.7s}
+.login-feats span{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.12);display:grid;place-items:center;flex:none}
+.login-feats b{display:block;font-weight:600;font-size:.95rem}
+.login-feats small{display:block;opacity:.75;font-size:.84rem;margin-top:2px}
+.login-copy{color:rgba(255,255,255,.7)}
+.login-panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:30px 28px;box-shadow:0 18px 50px rgba(60,10,20,.08)}
+.login-links{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 16px;font-size:.86rem}
+.login-links a{display:inline-flex;align-items:center;gap:6px}
+.login-copy-movil{display:none;text-align:center;margin-top:4px}
+@media (max-width:860px){
+  .login{grid-template-rows:auto 1fr;min-height:100dvh}
+  .login-brand{padding:20px 20px 22px;display:block}
+  .login-brand img{width:min(200px,60%)}
+  .login-brand h2{font-size:1.3rem;margin-top:14px;max-width:none}
+  .login-brand p{font-size:.88rem;margin-top:6px}
+  .login-brand .login-feats,.login-brand .login-copy{display:none}
+  .login-form{place-items:start center;padding-top:22px;padding-bottom:28px}
+  .login-panel{padding:24px 20px;border-radius:12px}
+  .login-copy-movil{display:block}
+}
+@media (max-width:420px){.login-panel{border:0;box-shadow:none;background:transparent;padding:8px 2px}.login-links{flex-direction:column}}
+
+/* ::::: Paginación ::::: */
+.pager{display:flex;align-items:center;justify-content:space-between;gap:10px 16px;flex-wrap:wrap;margin:14px 0 4px;font-size:.86rem;color:var(--muted)}
+.pager-nav{display:flex;gap:4px;align-items:center}
+.pager-nav button{min-width:34px;height:34px;padding:0 8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;cursor:pointer;display:inline-grid;place-items:center;font:inherit;font-weight:500;transition:background .2s,border-color .2s,color .2s,transform .15s var(--spring)}
+.pager-nav button:hover:not(:disabled){border-color:var(--accent-fg);color:var(--accent-fg)}
+.pager-nav button:active:not(:disabled){transform:scale(.94)}
+.pager-nav button[aria-current="page"]{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.pager-nav button:disabled{opacity:.4;cursor:default}
+.pager-dots{padding:0 4px}
+.pager-size{display:inline-flex;align-items:center;gap:8px}
+.pager-size select{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:5px 8px;color:var(--ink)}
+@media (max-width:640px){.pager{justify-content:center}.pager-info{width:100%;text-align:center}.pager-size{display:none}}

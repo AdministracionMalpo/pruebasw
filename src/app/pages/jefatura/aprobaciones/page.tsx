@@ -9,17 +9,20 @@ import { Aprobacion } from '@/components/Acciones';
 import { Cabecera, Cargando, Chip, ErrorCarga, SinPermiso, Vacio } from '@/components/ui/ui';
 import { Icono } from '@/components/ui/Icono';
 import { useToast } from '@/components/ui/Toasts';
+import { Paginacion, usePaginado } from '@/components/ui/Paginacion';
 
 export default function Aprobaciones() {
   const { puede, usuario } = usePermisos();
   const { data, loading, error, refetch } = useApiAprobaciones();
   const [filtro, setFiltro] = useState('TODAS');
   const toast = useToast();
-  if (!puede(PERMISO.APROBAR)) return <SinPermiso />;
   const pend = data?.pendientes || [], hist = data?.resueltas || [];
   const tipos = Array.from(new Set(pend.map(s => s.tipo)));
   const f = tipos.includes(filtro) ? filtro : 'TODAS';
   const lista = pend.filter(s => f === 'TODAS' || s.tipo === f);
+  const pgP = usePaginado(lista, 10, f);
+  const pgH = usePaginado(hist, 10);
+  if (!puede(PERMISO.APROBAR)) return <SinPermiso />;
   const respaldo = (id: string) => verAdjunto(id).catch(e => toast(e.message, false));
   return <>
     <Cabecera seccion="Jefatura" titulo="Aprobaciones" sub={usuario?.es_admin ? 'Solicitudes de todos los trabajadores.' : 'Solicitudes de tu equipo.'} />
@@ -28,8 +31,8 @@ export default function Aprobaciones() {
       {pend.length > 0 && <div className="filters" role="group" aria-label="Filtrar por tipo">
         {['TODAS', ...tipos].map(t => <button key={t} type="button" aria-pressed={f === t} onClick={() => setFiltro(t)}>{t === 'TODAS' ? 'Todas' : SOLICITUD_LABEL[t]}</button>)}
       </div>}
-      <div className="list stagger" style={{ marginBottom: 28 }}>
-        {lista.length ? lista.map(s => (
+      <div className="list stagger" key={'p' + pgP.pagina}>
+        {lista.length ? pgP.items.map(s => (
           <div key={s.id} className="item">
             <span className="ic warn"><Icono n={SOLICITUD_ICONO[s.tipo]} /></span>
             <div><b>{SOLICITUD_LABEL[s.tipo]}</b><div className="meta">{s.nombre} · {s.cargo} · {s.detalle}</div>{s.motivo && <div className="meta">“{s.motivo}”</div>}
@@ -38,9 +41,11 @@ export default function Aprobaciones() {
           </div>
         )) : <Vacio>No hay solicitudes pendientes.</Vacio>}
       </div>
+      <Paginacion p={pgP} etiqueta="pendientes" />
+      <div style={{ height: 24 }} />
       <h2 style={{ marginBottom: 10 }}>Resueltas recientemente</h2>
-      <div className="list stagger">
-        {hist.length ? hist.map(s => (
+      <div className="list stagger" key={'h' + pgH.pagina}>
+        {hist.length ? pgH.items.map(s => (
           <div key={s.id} className="item">
             <span className={'ic ' + ESTADO_CHIP[s.estado]}><Icono n={SOLICITUD_ICONO[s.tipo]} /></span>
             <div><b>{SOLICITUD_LABEL[s.tipo]}</b><div className="meta">{s.nombre} · {s.detalle} · resuelta por {s.revisor ?? '—'}{s.resuelta_en ? ' el ' + fmtFechaHora(s.resuelta_en) : ''}</div></div>
@@ -49,6 +54,7 @@ export default function Aprobaciones() {
           </div>
         )) : <Vacio icono="inbox">Aún no hay solicitudes resueltas.</Vacio>}
       </div>
+      <Paginacion p={pgH} etiqueta="resueltas" />
     </>}
   </>;
 }
